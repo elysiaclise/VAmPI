@@ -59,7 +59,7 @@ def register_user():
                 if request_data['admin']:
                     admin = True
                 else:
-                'message': 'Successfully registered. Login to receive an auth token.'
+                    'message': 'Successfully registered. Login to receive an auth token.'
             }
 
             return Response(json.dumps(responseObject), 200, mimetype=JSON_MIME)
