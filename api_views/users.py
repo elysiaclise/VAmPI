@@ -37,7 +37,6 @@ def me():
         responseObject = {
                 'admin': user.admin
             }
-        }
         return Response(json.dumps(responseObject), 200, mimetype=JSON_MIME)
 
 
