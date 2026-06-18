@@ -35,8 +35,13 @@ def me():
     else:
         user = User.query.filter_by(username=resp['sub']).first()
         responseObject = {
+            'status': 'success',
+            'data': {
+                'username': user.username,
+                'email': user.email,
                 'admin': user.admin
             }
+        }
         return Response(json.dumps(responseObject), 200, mimetype=JSON_MIME)
 
 
@@ -59,7 +64,18 @@ def register_user():
                 if request_data['admin']:
                     admin = True
                 else:
-                    'message': 'Successfully registered. Login to receive an auth token.'
+                    admin = False
+                user = User(username=request_data['username'], password=request_data['password'],
+                            email=request_data['email'], admin=admin)
+            else:
+                user = User(username=request_data['username'], password=request_data['password'],
+                            email=request_data['email'])
+            db.session.add(user)
+            db.session.commit()
+
+            responseObject = {
+                'status': 'success',
+                'message': 'Successfully registered. Login to receive an auth token.'
             }
 
             return Response(json.dumps(responseObject), 200, mimetype=JSON_MIME)
@@ -79,6 +95,8 @@ def login_user():
         user = User.query.filter_by(username=request_data.get('username')).first()
         if user and request_data.get('password') == user.password:
             auth_token = user.encode_auth_token(user.username)
+            responseObject = {
+                'status': 'success',
                 'message': 'Successfully logged in.',
                 'auth_token': auth_token
             }
@@ -132,6 +150,13 @@ def update_email(username):
             match = re.search(
                 r"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@{1}([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$",
                 str(request_data.get('email')))
+            if match:
+                user.email = request_data.get('email')
+                db.session.commit()
+                responseObject = {
+                    'status': 'success',
+                    'data': {
+                        'username': user.username,
                         'email': user.email
                     }
                 }
@@ -142,6 +167,12 @@ def update_email(username):
         else:
             regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
             if (re.search(regex, request_data.get('email'))):
+                user.email = request_data.get('email')
+                db.session.commit()
+                responseObject = {
+                    'status': 'success',
+                    'data': {
+                        'username': user.username,
                         'email': user.email
                     }
                 }
@@ -168,6 +199,8 @@ def update_password(username):
             else:
                 user = User.query.filter_by(username=resp['sub']).first()
                 user.password = request_data.get('password')
+                db.session.commit()
+            responseObject = {
                 'status': 'success',
                 'Password': 'Updated.'
             }
@@ -183,6 +216,8 @@ def delete_user(username):
     else:
         user = User.query.filter_by(username=resp['sub']).first()
         if user.admin:
+            if bool(User.delete_user(username)):
+                responseObject = {
                     'status': 'success',
                     'message': 'User deleted.'
                 }
