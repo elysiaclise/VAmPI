@@ -49,8 +49,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          args: -Dsonar.projectKey=elysiaclise_VAmPI -Dsonar.organization=elysiaclise -Dsonar.sources=. -Dsonar.qualitygate.wait=true -Dsonar.coverage.exclusions=**/*.py          projectBaseDir: .
-
+          args: -Dsonar.projectKey=elysiaclise_VAmPI -Dsonar.organization=elysiaclise -Dsonar.sources=. -Dsonar.qualitygate.wait=true -Dsonar.coverage.exclusions=**/*.py
       - name: SCA
         continue-on-error: true
         run: |
